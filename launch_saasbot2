@@ -1,0 +1,54 @@
+#!/usr/bin/python
+
+# MIT License
+#
+# Copyright (c) 2013,2014 Gary Anderson
+
+__author__ = "ganderson@seattleacademy.org (Gary Anderson)"
+
+import logging
+import StringIO
+import sys
+import time
+import create
+import requests
+import json
+import socket
+
+FORMAT = '%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s'
+DATE_FORMAT = '%H%M%S'
+
+def getipaddress():
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  s.connect(("8.8.8.8",80))
+  myip = s.getsockname()[0]
+  s.close()
+  return myip   
+
+def main():
+  c = create.Create('/dev/ttyUSB0', 2)
+  url = "http://saasmath.seattleacademy.org/saasbot/readbot.php"
+  
+  mysession = requests.Session()
+  myip = getipaddress()
+  try:
+	while 1:
+		payload = {'VOLTAGE': str(c.getSensor('VOLTAGE')), 'botname': myip}
+		r = mysession.get(url,params=payload)
+		print payload
+		print r.text
+		bytearray = r.text.split(',')
+		if(len(bytearray) > 1):
+		  moveit = map(int, bytearray)
+		  print c._rawSend(moveit)
+
+		time.sleep(1)
+		
+  except KeyboardInterrupt:
+		print 'shutdown'	
+  		c.shutdown()
+  
+
+
+if __name__ == '__main__':
+  main()
