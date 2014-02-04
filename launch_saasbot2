@@ -36,11 +36,13 @@ def main():
 		payload = {'VOLTAGE': str(c.getSensor('VOLTAGE')), 'botname': myip}
 		r = mysession.get(url,params=payload)
 		print payload
-		print r.text
+		#print r.text
 		bytearray = r.text.split(',')
-		if(len(bytearray) > 1):
+		#print bytearray;
+		if(r.text != ""):
+		  print "sending command " + r.text
 		  moveit = map(int, bytearray)
-		  print c._rawSend(moveit)
+		  c._rawSend(moveit)
 
 		time.sleep(1)
 		
