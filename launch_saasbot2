@@ -33,7 +33,21 @@ def main():
   myip = getipaddress()
   try:
 	while 1:
-		payload = {'VOLTAGE': str(c.getSensor('VOLTAGE')), 'botname': myip}
+		#payload = {'VOLTAGE': str(c.getSensor('VOLTAGE')), 'botname': myip}
+		payload = {'botname':myip}
+		payload['VOLTAGE'] = str(c.getSensor('VOLTAGE'))
+		payload['OI_MODE'] = str(c.getSensor('OI_MODE'))
+		payload['BUMPS_AND_WHEEL_DROPS'] = str(c.getSensor('BUMPS_AND_WHEEL_DROPS'))
+		payload['WALL_SIGNAL'] = str(c.getSensor('WALL_SIGNAL'))
+		payload['CLIFF_LEFT_SIGNAL'] = str(c.getSensor('CLIFF_LEFT_SIGNAL'))
+		payload['CLIFF_FRONT_LEFT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_LEFT_SIGNAL'))
+		payload['CLIFF_FRONT_RIGHT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_RIGHT_SIGNAL'))
+		payload['CLIFF_RIGHT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_LEFT_SIGNAL'))
+		payload['SONG_PLAYING'] = str(c.getSensor('SONG_PLAYING'))
+		payload['OI_MODE'] = str(c.getSensor('OI_MODE'))
+		payload['CHARGING_SOURCES_AVAILABLE'] = str(c.getSensor('CHARGING_SOURCES_AVAILABLE'))
+		payload['RIGHT_VELOCITY'] = str(c.getSensor('RIGHT_VELOCITY'))
+		payload['LEFT_VELOCITY'] = str(c.getSensor('LEFT_VELOCITY'))
 		r = mysession.get(url,params=payload)
 		print payload
 		#print r.text
