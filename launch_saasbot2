@@ -26,39 +26,46 @@ def getipaddress():
   return myip   
 
 def main():
+  myip = getipaddress()
+  url = "http://saasmath.seattleacademy.org/saasbot/clearbot.php"
+  payload = {'botname':myip}
+  requests.get(url, params=payload)
+  print "clearing pending commands"
   c = create.Create('/dev/ttyUSB0', 2)
   url = "http://saasmath.seattleacademy.org/saasbot/readbot.php"
   
   mysession = requests.Session()
-  myip = getipaddress()
+  print "Checking sensors, waiting for commands ..."
   try:
 	while 1:
-		#payload = {'VOLTAGE': str(c.getSensor('VOLTAGE')), 'botname': myip}
 		payload = {'botname':myip}
+		VOLTAGE = c.getSensor('VOLTAGE')
+		if VOLTAGE == None:
+		    print "no sensors, turn robot on?"
+		    break
+		sensors = {}
+		sensors['VOLTAGE'] = str(VOLTAGE)
+		sensors['BUMPS_AND_WHEEL_DROPS'] = str(c.getSensor('BUMPS_AND_WHEEL_DROPS'))
+		sensors['WALL_SIGNAL'] = str(c.getSensor('WALL_SIGNAL'))
+		sensors['CLIFF_LEFT_SIGNAL'] = str(c.getSensor('CLIFF_LEFT_SIGNAL'))
+		sensors['CLIFF_FRONT_LEFT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_LEFT_SIGNAL'))
+		sensors['CLIFF_FRONT_RIGHT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_RIGHT_SIGNAL'))
+		sensors['CLIFF_RIGHT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_LEFT_SIGNAL'))
+		sensors['SONG_PLAYING'] = str(c.getSensor('SONG_PLAYING'))
+		sensors['OI_MODE'] = str(c.getSensor('OI_MODE'))
+		sensors['CHARGING_SOURCES_AVAILABLE'] = str(c.getSensor('CHARGING_SOURCES_AVAILABLE'))
+		sensors['RIGHT_VELOCITY'] = str(c.getSensor('RIGHT_VELOCITY'))
+		sensors['LEFT_VELOCITY'] = str(c.getSensor('LEFT_VELOCITY'))
+		payload['sensors'] = json.dumps(sensors)
 		payload['VOLTAGE'] = str(c.getSensor('VOLTAGE'))
-		payload['OI_MODE'] = str(c.getSensor('OI_MODE'))
-		payload['BUMPS_AND_WHEEL_DROPS'] = str(c.getSensor('BUMPS_AND_WHEEL_DROPS'))
-		payload['WALL_SIGNAL'] = str(c.getSensor('WALL_SIGNAL'))
-		payload['CLIFF_LEFT_SIGNAL'] = str(c.getSensor('CLIFF_LEFT_SIGNAL'))
-		payload['CLIFF_FRONT_LEFT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_LEFT_SIGNAL'))
-		payload['CLIFF_FRONT_RIGHT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_RIGHT_SIGNAL'))
-		payload['CLIFF_RIGHT_SIGNAL'] = str(c.getSensor('CLIFF_FRONT_LEFT_SIGNAL'))
-		payload['SONG_PLAYING'] = str(c.getSensor('SONG_PLAYING'))
-		payload['OI_MODE'] = str(c.getSensor('OI_MODE'))
-		payload['CHARGING_SOURCES_AVAILABLE'] = str(c.getSensor('CHARGING_SOURCES_AVAILABLE'))
-		payload['RIGHT_VELOCITY'] = str(c.getSensor('RIGHT_VELOCITY'))
-		payload['LEFT_VELOCITY'] = str(c.getSensor('LEFT_VELOCITY'))
 		r = mysession.get(url,params=payload)
-		print payload
-		#print r.text
 		bytearray = r.text.split(',')
-		#print bytearray;
 		if(r.text != ""):
 		  print "sending command " + r.text
 		  moveit = map(int, bytearray)
 		  c._rawSend(moveit)
 
-		time.sleep(1)
+		time.sleep(.5)
 		
   except KeyboardInterrupt:
 		print 'shutdown'	
